@@ -3,443 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zomato | Order Food Online</title>
+    <title>Zomato | 3-Tier Multi-Role App</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f8f9fa; color: #2d3748; min-height: 100vh; display: flex; flex-direction: column; }
-
-        /* ================= UPPER NAVIGATION BAR ================= */
-        .header-nav {
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-            height: 68px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo {
-            font-size: 26px;
-            font-weight: 900;
-            color: #e23744;
-            text-decoration: none;
-            letter-spacing: -1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .logo span.badge {
-            background: #e23744;
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-        }
-
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            list-style: none;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 14px;
-            text-decoration: none;
-            color: #4a5568;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-        .nav-link:hover {
-            color: #e23744;
-            background-color: #fff5f5;
-        }
-        .nav-link.active {
-            color: #e23744;
-            font-weight: 700;
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -14px;
-            left: 12px;
-            right: 12px;
-            height: 3px;
-            background: #e23744;
-            border-radius: 3px;
-        }
-        .nav-icon { font-size: 17px; }
-
-        .cart-count {
-            background: #e23744;
-            color: white;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 12px;
-            margin-left: 2px;
-        }
-
-        .user-pill {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #edf2f7;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-        .role-badge-admin { background: #e9d8fd; color: #6b46c1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; }
-        .role-badge-employee { background: #feebc8; color: #c05621; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; }
-        .role-badge-user { background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; }
-
-        .logout-btn {
-            background: none;
-            border: none;
-            color: #e53e3e;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        .logout-btn:hover { background: #fed7d7; }
-
-        .main-container {
-            max-width: 1050px;
-            margin: 25px auto;
-            padding: 0 20px;
-            flex: 1;
-            width: 100%;
-        }
-
-        .view-section { display: none; animation: fadeIn 0.2s ease-in-out; }
-        .view-section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .content-box {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 24px;
-            border: 1px solid #edf2f7;
-        }
-        .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1a202c;
-            margin-bottom: 18px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #edf2f7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&auto=format&fit=crop&q=80') center/cover;
-            color: white;
-            border-radius: 14px;
-            padding: 45px 25px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
-        .hero p { font-size: 16px; opacity: 0.9; }
-
-        /* Role Banner on Dashboard */
-        .role-banner {
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .role-banner.admin { background: #faf5ff; border: 1.5px solid #d6bcfa; color: #553c9e; }
-        .role-banner.employee { background: #fffaf0; border: 1.5px solid #fbd38d; color: #9c4221; }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .food-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .food-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-        }
-        .food-title { font-size: 16px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
-        .food-res { font-size: 13px; color: #718096; margin-bottom: 8px; }
-        .food-price { font-size: 17px; font-weight: 800; color: #e23744; }
-        .food-rating { background: #24963f; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-
-        .btn-add {
-            background: #ffffff;
-            color: #24963f;
-            border: 1.5px solid #24963f;
-            padding: 7px 16px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 12px;
-            width: 100%;
-        }
-        .btn-add:hover { background: #24963f; color: #ffffff; }
-
-        .btn-edit-price {
-            background: #edf2f7;
-            color: #2b6cb0;
-            border: 1px solid #cbd5e0;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 8px;
-            width: 100%;
-        }
-        .btn-edit-price:hover { background: #ebf8ff; border-color: #3182ce; }
-
-        .form-card {
-            max-width: 460px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-            border: 1px solid #e2e8f0;
-        }
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 13px; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
-        .form-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-            transition: border 0.2s;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #f8f9fa; color: #2d3748; min-height: 100vh; display: flex; flex-direction: column; }
+        .header-nav { background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .nav-container { max-width: 1100px; margin: 0 auto; padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 22px; font-weight: 900; color: #e23744; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .logo .badge { background: #e23744; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        .nav-menu { display: flex; align-items: center; gap: 6px; list-style: none; }
+        .nav-link { display: flex; align-items: center; gap: 5px; padding: 7px 11px; text-decoration: none; color: #4a5568; font-size: 14px; font-weight: 600; border-radius: 6px; }
+        .nav-link:hover, .nav-link.active { color: #e23744; background: #fff5f5; font-weight: 700; }
+        .cart-count { background: #e23744; color: #fff; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 10px; }
+        .user-pill { display: flex; align-items: center; gap: 8px; background: #edf2f7; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .role-badge { padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+        .role-admin { background: #e9d8fd; color: #6b46c1; }
+        .role-employee { background: #feebc8; color: #c05621; }
+        .role-user { background: #c6f6d5; color: #22543d; }
+        .logout-btn { background: none; border: none; color: #e53e3e; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .main-container { max-width: 1100px; margin: 20px auto; padding: 0 16px; flex: 1; width: 100%; }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.2s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .hero { background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&auto=format&fit=crop&q=80') center/cover; color: #fff; border-radius: 12px; padding: 32px 20px; text-align: center; margin-bottom: 20px; }
+        .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+        .hero p { font-size: 14px; opacity: 0.9; }
+        .content-box { background: #fff; border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-bottom: 18px; border: 1px solid #edf2f7; }
+        .section-title { font-size: 18px; font-weight: 800; color: #1a202c; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+        .food-card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.2s; }
+        .food-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .food-title { font-size: 15px; font-weight: 700; color: #1a202c; }
+        .food-res { font-size: 12px; color: #718096; margin-bottom: 6px; }
+        .food-price { font-size: 16px; font-weight: 800; color: #e23744; }
+        .food-rating { background: #24963f; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .btn-add { background: #fff; color: #24963f; border: 1.5px solid #24963f; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 8px; width: 100%; transition: 0.2s; }
+        .btn-add:hover { background: #24963f; color: #fff; }
+        .btn-edit-price { background: #edf2f7; color: #2b6cb0; border: 1px solid #cbd5e0; padding: 5px; border-radius: 5px; font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 6px; width: 100%; }
+        .form-card { max-width: 420px; margin: 20px auto; background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+        .form-group { margin-bottom: 12px; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; margin-bottom: 4px; }
+        .form-input { width: 100%; padding: 8px 11px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; }
         .form-input:focus { border-color: #e23744; }
-        .btn-submit {
-            width: 100%;
-            background: #e23744;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        .btn-submit { width: 100%; background: #e23744; color: #fff; border: none; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; }
         .btn-submit:hover { background: #c82333; }
-
-        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .cart-table th, .cart-table td { padding: 12px 14px; border-bottom: 1px solid #edf2f7; text-align: left; font-size: 14px; }
+        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+        .cart-table th, .cart-table td { padding: 9px 10px; border-bottom: 1px solid #edf2f7; text-align: left; font-size: 13px; }
         .cart-table th { background: #f7fafc; color: #4a5568; font-weight: 700; }
-        .qty-btn { background: #edf2f7; border: 1px solid #cbd5e0; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-
-        .bill-box { background: #f7fafc; border-radius: 8px; padding: 18px; margin-top: 15px; font-size: 14px; }
-        .bill-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: #4a5568; }
-        .bill-row.total { border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px; font-size: 17px; font-weight: 800; color: #1a202c; }
-
-        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .qty-btn { background: #edf2f7; border: 1px solid #cbd5e0; padding: 2px 7px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .bill-box { background: #f7fafc; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 13px; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 5px; color: #4a5568; }
+        .bill-row.total { border-top: 1px solid #e2e8f0; padding-top: 7px; margin-top: 7px; font-size: 15px; font-weight: 800; color: #1a202c; }
+        .badge-status { padding: 3px 7px; border-radius: 10px; font-size: 10px; font-weight: 800; }
         .badge-PLACED { background: #fef3c7; color: #d97706; }
         .badge-PREPARING { background: #dbeafe; color: #2563eb; }
         .badge-DELIVERED { background: #d1fae5; color: #059669; }
-
         .hidden { display: none !important; }
-
-        /* ================= PAYMENT GATEWAY MODAL ================= */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(3px);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-        }
-        .payment-modal {
-            background: #ffffff;
-            border-radius: 16px;
-            max-width: 420px;
-            width: 100%;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-            animation: popIn 0.25s ease-out;
-        }
-        @keyframes popIn {
-            from { transform: scale(0.92); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .payment-header {
-            background: #1a202c;
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .payment-body {
-            padding: 24px;
-            text-align: center;
-        }
-        .payment-amount-box {
-            background: #f7fafc;
-            border: 1px dashed #cbd5e0;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 18px;
-        }
-        .payment-qr-container {
-            background: white;
-            padding: 14px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            display: inline-block;
-            margin: 10px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
-        .upi-apps-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 12px 0 16px;
-            font-size: 12px;
-            color: #718096;
-            font-weight: 600;
-        }
-        .upi-tag {
-            background: #edf2f7;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        .btn-pay-confirm {
-            background: #24963f;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        .btn-pay-confirm:hover { background: #1e7e34; }
-        .btn-pay-cancel {
-            background: none;
-            border: none;
-            color: #718096;
-            font-size: 13px;
-            margin-top: 10px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: #2d3748;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            font-size: 14px;
-            font-weight: 600;
-            display: none;
-            z-index: 4000;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(2px); z-index: 3000; align-items: center; justify-content: center; padding: 15px; }
+        .modal-card { background: #fff; border-radius: 12px; max-width: 380px; width: 100%; overflow: hidden; box-shadow: 0 16px 36px rgba(0,0,0,0.25); }
+        .modal-header { background: #1a202c; color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 18px; text-align: center; }
+        .qr-box { background: #fff; padding: 8px; border-radius: 8px; border: 2px solid #e2e8f0; display: inline-block; margin: 6px 0; }
+        .upi-row { display: flex; justify-content: center; gap: 6px; margin: 6px 0 10px; font-size: 11px; color: #718096; font-weight: 700; }
+        .upi-tag { background: #edf2f7; padding: 2px 6px; border-radius: 4px; }
+        .btn-confirm-pay { background: #24963f; color: #fff; border: none; padding: 11px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; }
+        .btn-confirm-pay:hover { background: #1e7e34; }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: #2d3748; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; display: none; z-index: 4000; }
     </style>
 </head>
 <body>
-
-    <!-- ================= UPPER NAVIGATION BAR ================= -->
     <header class="header-nav">
         <div class="nav-container">
-            <a href="/home" class="logo" onclick="navigate(event, '/home')">
-                zomato <span class="badge">3-TIER</span>
-            </a>
-
+            <a href="/home" class="logo" onclick="navigate(event, '/home')">zomato <span class="badge">3-TIER</span></a>
             <ul class="nav-menu">
-                <li>
-                    <a href="/home" class="nav-link" id="nav-home" onclick="navigate(event, '/home')">
-                        <span class="nav-icon">🏠</span> Home
-                    </a>
-                </li>
-                <li>
-                    <a href="/cart" class="nav-link" id="nav-cart" onclick="navigate(event, '/cart')">
-                        <span class="nav-icon">🛒</span> Cart <span class="cart-count" id="cart-badge">0</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/orders" class="nav-link" id="nav-orders" onclick="navigate(event, '/orders')">
-                        <span class="nav-icon">📦</span> Orders
-                    </a>
-                </li>
-                <li id="nav-login-item">
-                    <a href="/login" class="nav-link" id="nav-login" onclick="navigate(event, '/login')">
-                        <span class="nav-icon">🔑</span> Login
-                    </a>
-                </li>
-                <li id="nav-signup-item">
-                    <a href="/signup" class="nav-link" id="nav-signup" onclick="navigate(event, '/signup')">
-                        <span class="nav-icon">📝</span> Sign Up
-                    </a>
-                </li>
+                <li><a href="/home" class="nav-link active" id="nav-home" onclick="navigate(event, '/home')"><span>🏠</span> Home</a></li>
+                <li><a href="/cart" class="nav-link" id="nav-cart" onclick="navigate(event, '/cart')"><span>🛒</span> Cart <span class="cart-count" id="cart-badge">0</span></a></li>
+                <li><a href="/orders" class="nav-link" id="nav-orders" onclick="navigate(event, '/orders')"><span>📦</span> Orders</a></li>
+                <li id="nav-login-item"><a href="/login" class="nav-link" id="nav-login" onclick="navigate(event, '/login')"><span>🔑</span> Login</a></li>
+                <li id="nav-signup-item"><a href="/signup" class="nav-link" id="nav-signup" onclick="navigate(event, '/signup')"><span>📝</span> Sign Up</a></li>
                 <li id="nav-user-item" class="hidden">
                     <div class="user-pill">
                         <span id="user-display-name">User</span>
-                        <span id="role-badge" class="role-badge-user">Customer</span>
+                        <span id="role-badge" class="role-badge role-user">Customer</span>
                         <button onclick="handleLogout()" class="logout-btn">Logout</button>
                     </div>
                 </li>
@@ -448,742 +93,324 @@
     </header>
 
     <div class="main-container">
-
-        <!-- ================= 1. /home VIEW ================= -->
-        <section id="view-home" class="view-section">
+        <!-- 1. Home -->
+        <section id="view-home" class="view-section active">
             <div class="hero">
                 <h1>Discover the best food & drinks</h1>
                 <p>Order online, manage menu items, and process orders in real time</p>
             </div>
-
-            <!-- Role Notification Banner -->
-            <div id="role-notification" class="role-banner hidden">
-                <span id="role-banner-text">Welcome!</span>
-                <span id="role-banner-action"></span>
-            </div>
-
-            <!-- ADMIN CONTROL PANEL: Add New Restaurants & Items -->
             <div id="admin-add-box" class="content-box hidden" style="border: 2px solid #805ad5;">
-                <h3 style="color: #6b46c1; margin-bottom: 12px;">👑 Admin Control: Add Restaurant & Food Item</h3>
-                <p style="font-size: 13px; color: #718096; margin-bottom: 14px;">Admins can add new restaurants, menu items, and set baseline prices.</p>
-                <form onsubmit="handleAddMenuItem(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
-                        <input type="text" id="admin-res" class="form-input" placeholder="Restaurant Name" required>
-                        <input type="text" id="admin-dish" class="form-input" placeholder="Dish Name" required>
-                        <input type="number" id="admin-price" class="form-input" placeholder="Price (₹)" step="1" required>
-                        <input type="number" id="admin-rating" class="form-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" value="4.5" required>
-                    </div>
-                    <button type="submit" class="btn-submit" style="width: auto; margin-top: 12px; padding: 8px 20px; background: #6b46c1;">+ Add to Restaurant Menu</button>
+                <h3 style="color: #6b46c1; margin-bottom: 8px; font-size: 15px;">👑 Admin: Add Restaurant & Dish</h3>
+                <form onsubmit="handleAddMenuItem(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+                    <input type="text" id="admin-res" class="form-input" placeholder="Restaurant Name" required>
+                    <input type="text" id="admin-dish" class="form-input" placeholder="Dish Name" required>
+                    <input type="number" id="admin-price" class="form-input" placeholder="Price (₹)" step="1" required>
+                    <input type="number" id="admin-rating" class="form-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" value="4.5" required>
+                    <div style="grid-column: 1 / -1; text-align: right;"><button type="submit" class="btn-submit" style="width:auto; padding:7px 18px; background:#6b46c1;">+ Add Dish</button></div>
                 </form>
             </div>
-
             <div class="content-box">
-                <div class="section-title">
-                    <span>Restaurant Dishes & Menu Items</span>
-                    <span id="menu-subtitle" style="font-size: 13px; font-weight: normal; color: #718096;">Click "+ Add to Cart" to start order</span>
-                </div>
-                <div id="menu-grid" class="menu-grid">Loading menu items from Database...</div>
+                <div class="section-title"><span>Restaurant Dishes & Menu</span><span id="menu-subtitle" style="font-size:12px; font-weight:normal; color:#718096;">Click '+ Add to Cart'</span></div>
+                <div id="menu-grid" class="menu-grid">Loading...</div>
             </div>
         </section>
 
-        <!-- ================= 2. /cart VIEW ================= -->
+        <!-- 2. Cart -->
         <section id="view-cart" class="view-section">
             <div class="content-box">
-                <div class="section-title">
-                    <span>🛒 Your Food Cart</span>
-                    <button onclick="clearCart()" style="background: none; border: 1px solid #cbd5e0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Clear Cart</button>
-                </div>
-
-                <div id="cart-empty" style="text-align: center; padding: 40px; color: #a0aec0;">
-                    <p style="font-size: 18px; margin-bottom: 10px;">Your cart is currently empty!</p>
-                    <a href="/home" onclick="navigate(event, '/home')" class="btn-submit" style="display: inline-block; width: auto; padding: 8px 20px; text-decoration: none;">Browse Food Menu</a>
-                </div>
-
+                <div class="section-title"><span>🛒 Your Cart</span><button onclick="clearCart()" style="background:none; border:1px solid #cbd5e0; padding:2px 8px; border-radius:4px; cursor:pointer; font-size:12px;">Clear</button></div>
+                <div id="cart-empty" style="text-align:center; padding:25px; color:#a0aec0;"><p style="margin-bottom:8px;">Cart is empty!</p><a href="/home" onclick="navigate(event, '/home')" class="btn-submit" style="display:inline-block; width:auto; padding:6px 14px; text-decoration:none;">Browse Menu</a></div>
                 <div id="cart-content" class="hidden">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Restaurant</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cart-table-body"></tbody>
-                    </table>
-
+                    <table class="cart-table"><thead><tr><th>Item</th><th>Restaurant</th><th>Price</th><th>Qty</th><th>Total</th></tr></thead><tbody id="cart-table-body"></tbody></table>
                     <div class="bill-box">
-                        <div class="bill-row"><span>Item Subtotal:</span><span id="bill-subtotal">₹0</span></div>
-                        <div class="bill-row"><span>Delivery Partner Fee:</span><span>₹30</span></div>
-                        <div class="bill-row total"><span>Total to Pay:</span><span id="bill-total" style="color: #e23744;">₹0</span></div>
+                        <div class="bill-row"><span>Subtotal:</span><span id="bill-subtotal">₹0</span></div>
+                        <div class="bill-row"><span>Delivery Fee:</span><span>₹30</span></div>
+                        <div class="bill-row total"><span>Total:</span><span id="bill-total" style="color:#e23744;">₹0</span></div>
                     </div>
-
-                    <div style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                        <h3 style="margin-bottom: 12px; font-size: 17px;">Delivery Address</h3>
-                        <form onsubmit="handleOpenPaymentGateway(event)">
-                            <div class="form-group">
-                                <label class="form-label">Full Delivery Address (Flat / House No, Street, Landmark)</label>
-                                <textarea id="checkout-address" class="form-input" rows="2" placeholder="e.g., Flat 402, Green Valley Apartments, Mumbai" required></textarea>
-                            </div>
-                            <button type="submit" class="btn-submit" style="font-size: 16px;">Proceed to Payment ➔</button>
+                    <div style="margin-top:14px; border-top:1px solid #e2e8f0; padding-top:12px;">
+                        <h4 style="margin-bottom:6px; font-size:13px;">Delivery Address</h4>
+                        <form onsubmit="handleOpenPayment(event)">
+                            <div class="form-group"><textarea id="checkout-address" class="form-input" rows="2" placeholder="Flat/House no, street, city" required></textarea></div>
+                            <button type="submit" class="btn-submit">Proceed to Payment ➔</button>
                         </form>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ================= 3. /orders VIEW ================= -->
+        <!-- 3. Orders -->
         <section id="view-orders" class="view-section">
             <div class="content-box">
-                <div class="section-title">
-                    <span id="orders-heading">📦 Order Management</span>
-                    <button onclick="loadOrders()" style="background: white; border: 1px solid #cbd5e0; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">↻ Refresh Orders</button>
-                </div>
-                <div id="orders-container">Loading orders from Database...</div>
+                <div class="section-title"><span id="orders-heading">📦 Orders</span><button onclick="loadOrders()" style="background:#fff; border:1px solid #cbd5e0; padding:4px 8px; border-radius:5px; cursor:pointer; font-size:12px;">↻ Refresh</button></div>
+                <div id="orders-container">Loading orders...</div>
             </div>
         </section>
 
-        <!-- ================= 4. /login VIEW ================= -->
+        <!-- 4. Login -->
         <section id="view-login" class="view-section">
             <div class="form-card">
-                <h2 style="font-size: 22px; margin-bottom: 6px; text-align: center;">Account Login</h2>
-                <p style="text-align: center; font-size: 13px; color: #718096; margin-bottom: 20px;">Sign in to access your dashboard</p>
-
-                <div style="background: #ebf8ff; border: 1px solid #bee3f8; padding: 12px; border-radius: 8px; font-size: 12px; color: #2b6cb0; margin-bottom: 15px; line-height: 1.6;">
-                    💡 <b>Pre-configured Role Logins:</b><br>
-                    • 👑 <b>Admin:</b> <code>admin</code> / <code>admin123</code><br>
-                    • 👨‍🍳 <b>Employee:</b> <code>employee</code> / <code>emp123</code><br>
-                    • 👤 <b>Customer:</b> <code>user</code> / <code>user123</code>
+                <h2 style="font-size:18px; text-align:center; margin-bottom:4px;">Account Login</h2>
+                <div style="background:#ebf8ff; border:1px solid #bee3f8; padding:8px; border-radius:6px; font-size:12px; color:#2b6cb0; margin-bottom:12px;">
+                    👑 <b>admin</b>/admin123 &nbsp;|&nbsp; 👨‍🍳 <b>employee</b>/emp123 &nbsp;|&nbsp; 👤 <b>user</b>/user123
                 </div>
-
                 <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label class="form-label">Username</label>
-                        <input type="text" id="login-user" class="form-input" placeholder="e.g., admin, employee, user" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" id="login-pass" class="form-input" placeholder="Enter your password" required>
-                    </div>
+                    <div class="form-group"><label class="form-label">Username</label><input type="text" id="login-user" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Password</label><input type="password" id="login-pass" class="form-input" required></div>
                     <button type="submit" class="btn-submit">Sign In</button>
                 </form>
-
-                <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #718096;">
-                    Need a new account? <a href="/signup" onclick="navigate(event, '/signup')" style="color: #e23744; font-weight: 700; text-decoration: none;">Sign Up</a>
-                </p>
+                <p style="text-align:center; margin-top:10px; font-size:12px;">New here? <a href="/signup" onclick="navigate(event, '/signup')" style="color:#e23744; font-weight:700;">Sign Up</a></p>
             </div>
         </section>
 
-        <!-- ================= 5. /signup VIEW ================= -->
+        <!-- 5. Sign Up -->
         <section id="view-signup" class="view-section">
             <div class="form-card">
-                <h2 style="font-size: 22px; margin-bottom: 6px; text-align: center;">Register Account</h2>
-                <p style="text-align: center; font-size: 13px; color: #718096; margin-bottom: 20px;">Create a Customer, Employee, or Admin account</p>
-
+                <h2 style="font-size:18px; text-align:center; margin-bottom:4px;">Register Account</h2>
+                <p style="text-align:center; font-size:12px; color:#718096; margin-bottom:12px;">Create Customer, Employee, or Admin account</p>
                 <form onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <label class="form-label">Username</label>
-                        <input type="text" id="reg-user" class="form-input" placeholder="Choose a username" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" id="reg-pass" class="form-input" placeholder="Create a strong password" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Account Role</label>
+                    <div class="form-group"><label class="form-label">Username</label><input type="text" id="reg-user" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Password</label><input type="password" id="reg-pass" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Role</label>
                         <select id="reg-role" class="form-input">
-                            <option value="user">Customer (Order Food)</option>
-                            <option value="employee">Employee (Manage Orders & Prices)</option>
-                            <option value="admin">Admin (Manage Restaurants & Menu)</option>
+                            <option value="user">Customer (Order Food & Pay)</option>
+                            <option value="employee">Employee (Process Orders & Fix Prices)</option>
+                            <option value="admin">Admin (Manage Everything)</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-submit" style="background: #24963f;">Create Account</button>
+                    <button type="submit" class="btn-submit" style="background:#24963f;">Register</button>
                 </form>
-
-                <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #718096;">
-                    Already have an account? <a href="/login" onclick="navigate(event, '/login')" style="color: #e23744; font-weight: 700; text-decoration: none;">Login</a>
-                </p>
+                <p style="text-align:center; margin-top:10px; font-size:12px;">Have account? <a href="/login" onclick="navigate(event, '/login')" style="color:#e23744; font-weight:700;">Login</a></p>
             </div>
         </section>
-
     </div>
 
-    <!-- ================= PAYMENT GATEWAY MODAL (QR CODE SCAN) ================= -->
+    <!-- QR Modal -->
     <div id="payment-modal" class="modal-overlay">
-        <div class="payment-modal">
-            <div class="payment-header">
-                <span style="font-weight:800; font-size:16px;">💳 UPI / QR Payment Gateway</span>
-                <span style="background:#24963f; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:bold;">100% SECURE</span>
-            </div>
-            <div class="payment-body">
-                <div class="payment-amount-box">
-                    <span style="font-size:13px; color:#718096;">Total Payable Amount</span>
-                    <h2 id="qr-payable-amount" style="font-size:26px; color:#1a202c; font-weight:800; margin-top:4px;">₹0.00</h2>
+        <div class="modal-card">
+            <div class="modal-header"><b>💳 UPI / QR Code Payment</b><span style="background:#24963f; font-size:10px; padding:2px 6px; border-radius:8px;">SECURE</span></div>
+            <div class="modal-body">
+                <div style="background:#f7fafc; border:1px dashed #cbd5e0; padding:8px; border-radius:6px; margin-bottom:8px;">
+                    <span style="font-size:11px; color:#718096;">Payable Amount</span>
+                    <h2 id="qr-amount" style="font-size:22px; color:#1a202c;">₹0.00</h2>
                 </div>
-
-                <p style="font-size:13px; color:#4a5568; margin-bottom:6px;"><b>Scan QR Code with any UPI App</b></p>
-                <div class="upi-apps-row">
-                    <span class="upi-tag">GPay</span>
-                    <span class="upi-tag">PhonePe</span>
-                    <span class="upi-tag">Paytm</span>
-                    <span class="upi-tag">BHIM UPI</span>
-                </div>
-
-                <div class="payment-qr-container">
-                    <img id="qr-image" src="" alt="Payment QR Code" style="width:180px; height:180px; display:block;" />
-                </div>
-
-                <p style="font-size:12px; color:#718096; margin-top:8px;">Scan the QR code to complete payment instantly.</p>
-
-                <div style="margin-top:18px;">
-                    <button id="btn-confirm-pay" class="btn-pay-confirm" onclick="executeOrderPayment()">
-                        <span>✅ I Have Scanned & Paid</span>
-                    </button>
-                    <br>
-                    <button class="btn-pay-cancel" onclick="closePaymentModal()">Cancel & Return to Cart</button>
+                <div class="upi-row"><span class="upi-tag">GPay</span><span class="upi-tag">PhonePe</span><span class="upi-tag">Paytm</span><span class="upi-tag">BHIM</span></div>
+                <div class="qr-box"><img id="qr-image" src="" alt="QR Code" style="width:150px; height:150px; display:block;"></div>
+                <p style="font-size:11px; color:#718096; margin-top:4px;">Scan QR with UPI app & click confirm.</p>
+                <div style="margin-top:12px;">
+                    <button id="btn-confirm-pay" class="btn-confirm-pay" onclick="executeOrderPayment()">✅ I Have Scanned & Paid</button>
+                    <button type="button" onclick="id('payment-modal').style.display='none'" style="background:none; border:none; color:#718096; font-size:12px; margin-top:8px; cursor:pointer;">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit Food Price Modal (for Admin & Employee) -->
+    <!-- Edit Modal -->
     <div id="price-modal" class="modal-overlay">
-        <div style="background:white; padding:25px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
-            <h3 style="margin-bottom:12px; font-size:18px;">✏️ Fix & Update Food Price</h3>
-            <form onsubmit="handleSaveEditedItem(event)">
-                <input type="hidden" id="edit-item-id">
-                <div class="form-group">
-                    <label class="form-label">Restaurant</label>
-                    <input type="text" id="edit-res-name" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Dish Name</label>
-                    <input type="text" id="edit-dish-name" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">New Price (₹)</label>
-                    <input type="number" id="edit-price" class="form-input" step="1" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Rating (1 - 5)</label>
-                    <input type="number" id="edit-rating" class="form-input" min="1" max="5" step="0.1" required>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="button" onclick="closeEditModal()" style="flex:1; padding:10px; border:1px solid #cbd5e0; background:white; border-radius:6px; cursor:pointer;">Cancel</button>
-                    <button type="submit" class="btn-submit" style="flex:1; padding:10px;">Save Changes</button>
+        <div class="modal-card" style="padding:16px;">
+            <h3 style="margin-bottom:8px; font-size:15px;">✏️ Fix & Update Food Price</h3>
+            <form onsubmit="handleSaveEdit(event)">
+                <input type="hidden" id="edit-id">
+                <div class="form-group"><label class="form-label">Restaurant</label><input type="text" id="edit-res" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">Dish Name</label><input type="text" id="edit-dish" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">New Price (₹)</label><input type="number" id="edit-price" class="form-input" step="1" required></div>
+                <div class="form-group"><label class="form-label">Rating (1-5)</label><input type="number" id="edit-rating" class="form-input" min="1" max="5" step="0.1" required></div>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button type="button" onclick="id('price-modal').style.display='none'" style="flex:1; padding:8px; border:1px solid #cbd5e0; background:#fff; border-radius:6px; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-submit" style="flex:1; padding:8px;">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
-
     <div id="toast"></div>
 
     <script>
-        let currentUser = null;
-        let cartItems = JSON.parse(localStorage.getItem("zomato_cart") || "[]");
-        let pendingAddress = "";
+        const id = s => document.getElementById(s);
+        let currentUser = null, cartItems = JSON.parse(localStorage.getItem('zomato_cart') || '[]'), pendingAddress = '';
+        const showToast = msg => { const t = id('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 2200); };
+        const api = async (url, method='GET', body) => {
+            const res = await fetch(url, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+            return res.json();
+        };
 
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.textContent = msg;
-            t.style.display = "block";
-            setTimeout(() => { t.style.display = "none"; }, 2500);
-        }
-
-        // ================= PATH-BASED ROUTER =================
-        function navigate(event, path) {
-            if (event) event.preventDefault();
-            window.history.pushState({}, "", path);
-            handleRoute();
-        }
-
+        function navigate(e, path) { if (e) e.preventDefault(); window.history.pushState({}, '', path); handleRoute(); }
         window.onpopstate = handleRoute;
 
         function handleRoute() {
-            const rawPath = window.location.pathname.toLowerCase().replace(/\/$/, "");
-            const path = rawPath === "" ? "/home" : rawPath;
-
-            document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active"));
-            document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
-
-            if (path === "/home" || path === "") {
-                document.getElementById("view-home").classList.add("active");
-                document.getElementById("nav-home").classList.add("active");
-                loadRestaurants();
-            } else if (path === "/cart") {
-                document.getElementById("view-cart").classList.add("active");
-                document.getElementById("nav-cart").classList.add("active");
-                renderCart();
-            } else if (path === "/orders") {
-                document.getElementById("view-orders").classList.add("active");
-                document.getElementById("nav-orders").classList.add("active");
-                loadOrders();
-            } else if (path === "/login") {
-                document.getElementById("view-login").classList.add("active");
-                document.getElementById("nav-login").classList.add("active");
-            } else if (path === "/signup" || path === "/signin" || path === "/register") {
-                document.getElementById("view-signup").classList.add("active");
-                document.getElementById("nav-signup").classList.add("active");
-            } else {
-                document.getElementById("view-home").classList.add("active");
-                document.getElementById("nav-home").classList.add("active");
-                loadRestaurants();
-            }
+            const raw = window.location.pathname.toLowerCase().replace(/\/$/, '');
+            const path = (raw === '' || raw === '/signin') ? (raw === '/signin' ? '/signup' : '/home') : raw;
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const map = { '/home': ['view-home', 'nav-home', loadRestaurants], '/cart': ['view-cart', 'nav-cart', renderCart], '/orders': ['view-orders', 'nav-orders', loadOrders], '/login': ['view-login', 'nav-login'], '/signup': ['view-signup', 'nav-signup'] };
+            const [viewId, navId, fn] = map[path] || map['/home'];
+            if (id(viewId)) id(viewId).classList.add('active');
+            if (id(navId)) id(navId).classList.add('active');
+            if (fn) fn();
         }
 
-        // ================= AUTHENTICATION =================
         async function checkSession() {
-            try {
-                const res = await fetch("/api/me");
-                const user = await res.json();
-                currentUser = user;
-                updateAuthUI();
-            } catch (err) {
-                currentUser = null;
-                updateAuthUI();
-            }
+            try { currentUser = await api('/api/me'); } catch { currentUser = null; }
+            updateAuthUI();
         }
 
         function updateAuthUI() {
-            const loginItem = document.getElementById("nav-login-item");
-            const signupItem = document.getElementById("nav-signup-item");
-            const userItem = document.getElementById("nav-user-item");
-            const adminAddBox = document.getElementById("admin-add-box");
-            const roleNotif = document.getElementById("role-notification");
-            const roleBadge = document.getElementById("role-badge");
-            const menuSubtitle = document.getElementById("menu-subtitle");
-
-            if (currentUser) {
-                loginItem.classList.add("hidden");
-                signupItem.classList.add("hidden");
-                userItem.classList.remove("hidden");
-                document.getElementById("user-display-name").textContent = currentUser.username;
-
-                if (currentUser.role === "admin") {
-                    roleBadge.textContent = "Admin";
-                    roleBadge.className = "role-badge-admin";
-                    adminAddBox.classList.remove("hidden");
-                    roleNotif.className = "role-banner admin";
-                    roleNotif.classList.remove("hidden");
-                    document.getElementById("role-banner-text").innerHTML = "👑 <b>Admin Dashboard:</b> You have authority to add restaurants, edit food prices, and advance orders.";
-                    document.getElementById("orders-heading").textContent = "👑 All Customer Orders (Admin View)";
-                    menuSubtitle.textContent = "Admins can add to cart, edit prices, or delete menu items";
-                } else if (currentUser.role === "employee") {
-                    roleBadge.textContent = "Employee";
-                    roleBadge.className = "role-badge-employee";
-                    adminAddBox.classList.add("hidden");
-                    roleNotif.className = "role-banner employee";
-                    roleNotif.classList.remove("hidden");
-                    document.getElementById("role-banner-text").innerHTML = "👨‍🍳 <b>Employee Operations:</b> You can update/fix food prices and process orders (Placed → Preparing → Delivered).";
-                    document.getElementById("orders-heading").textContent = "👨‍🍳 Live Kitchen & Delivery Queue (Employee View)";
-                    menuSubtitle.textContent = "Employees can update dish prices or place food orders";
-                } else {
-                    roleBadge.textContent = "Customer";
-                    roleBadge.className = "role-badge-user";
-                    adminAddBox.classList.add("hidden");
-                    roleNotif.classList.add("hidden");
-                    document.getElementById("orders-heading").textContent = "📦 My Food Orders";
-                    menuSubtitle.textContent = "Click '+ Add to Cart' to place an order";
-                }
+            const isAuth = !!currentUser;
+            id('nav-login-item').classList.toggle('hidden', isAuth);
+            id('nav-signup-item').classList.toggle('hidden', isAuth);
+            id('nav-user-item').classList.toggle('hidden', !isAuth);
+            if (isAuth) {
+                id('user-display-name').textContent = currentUser.username;
+                const badge = id('role-badge');
+                badge.className = 'role-badge role-' + currentUser.role;
+                badge.textContent = currentUser.role.toUpperCase();
+                id('admin-add-box').classList.toggle('hidden', currentUser.role !== 'admin');
+                id('orders-heading').textContent = currentUser.role === 'admin' ? '👑 All Orders (Admin)' : (currentUser.role === 'employee' ? '👨‍🍳 Kitchen Queue (Employee)' : '📦 My Orders');
             } else {
-                loginItem.classList.remove("hidden");
-                signupItem.classList.remove("hidden");
-                userItem.classList.add("hidden");
-                adminAddBox.classList.add("hidden");
-                roleNotif.classList.add("hidden");
-                document.getElementById("orders-heading").textContent = "📦 Order History (Please Sign In)";
-                menuSubtitle.textContent = "Sign in to place food orders";
+                id('admin-add-box').classList.add('hidden');
+                id('orders-heading').textContent = '📦 Order History';
             }
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: document.getElementById("login-user").value,
-                    password: document.getElementById("login-pass").value
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                currentUser = data.user;
-                updateAuthUI();
-                showToast(`Welcome back, ${currentUser.username}!`);
-                navigate(null, "/home");
-            } else {
-                alert(data.error || "Login failed");
-            }
+            const data = await api('/api/login', 'POST', { username: id('login-user').value, password: id('login-pass').value });
+            if (data.user) { currentUser = data.user; updateAuthUI(); showToast('Welcome, ' + currentUser.username); navigate(null, '/home'); }
+            else alert(data.error || 'Login failed');
         }
 
         async function handleRegister(e) {
             e.preventDefault();
-            const role = document.getElementById("reg-role").value;
-            const res = await fetch("/api/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: document.getElementById("reg-user").value,
-                    password: document.getElementById("reg-pass").value,
-                    role: role
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert(`Account created successfully as ${role.toUpperCase()}! Please sign in.`);
-                navigate(null, "/login");
-            } else {
-                alert(data.error || "Registration failed");
-            }
+            const role = id('reg-role').value;
+            const data = await api('/api/register', 'POST', { username: id('reg-user').value, password: id('reg-pass').value, role });
+            if (!data.error) { alert('Account created! Please sign in.'); navigate(null, '/login'); }
+            else alert(data.error);
         }
 
         async function handleLogout() {
-            await fetch("/api/logout", { method: "POST" });
-            currentUser = null;
-            updateAuthUI();
-            showToast("Logged out successfully");
-            navigate(null, "/home");
+            await api('/api/logout', 'POST');
+            currentUser = null; updateAuthUI(); showToast('Logged out'); navigate(null, '/home');
         }
 
-        // ================= FOOD MENU & RESTAURANTS =================
         async function loadRestaurants() {
-            const grid = document.getElementById("menu-grid");
+            const grid = id('menu-grid');
             try {
-                const res = await fetch("/api/restaurants");
-                const items = await res.json();
-                grid.innerHTML = items.map(i => {
-                    const isStaff = currentUser && (currentUser.role === 'admin' || currentUser.role === 'employee');
-                    const isAdmin = currentUser && currentUser.role === 'admin';
-
-                    return `
-                        <div class="food-card">
-                            <div>
-                                <div style="display:flex; justify-content:space-between; align-items:start;">
-                                    <h4 class="food-title">${i.item_name}</h4>
-                                    <span class="food-rating">★ ${i.rating}</span>
-                                </div>
-                                <p class="food-res">${i.name}</p>
-                            </div>
-                            <div>
-                                <div class="food-price">₹${i.price}</div>
-                                <button class="btn-add" onclick="addToCart('${i.name}', '${i.item_name}', ${i.price})">+ Add to Cart</button>
-                                ${isStaff ? `
-                                    <button class="btn-edit-price" onclick="openEditModal(${i.id}, '${escapeQuotes(i.name)}', '${escapeQuotes(i.item_name)}', ${i.price}, ${i.rating})">
-                                        ✏️ Update Price / Details
-                                    </button>
-                                ` : ''}
-                                ${isAdmin ? `
-                                    <button onclick="handleDeleteItem(${i.id})" style="background:none; border:none; color:#e53e3e; font-size:11px; margin-top:6px; cursor:pointer; width:100%; text-align:center;">
-                                        🗑️ Delete Dish
-                                    </button>
-                                ` : ''}
-                            </div>
+                const items = await api('/api/restaurants');
+                const isStaff = currentUser && (currentUser.role === 'admin' || currentUser.role === 'employee');
+                const isAdmin = currentUser && currentUser.role === 'admin';
+                grid.innerHTML = items.map(i => `
+                    <div class="food-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:start;"><h4 class="food-title">${i.item_name}</h4><span class="food-rating">★ ${i.rating}</span></div>
+                            <p class="food-res">${i.name}</p>
                         </div>
-                    `;
-                }).join("");
-            } catch {
-                grid.innerHTML = "<p style='color:red;'>Failed to load menu items.</p>";
-            }
-        }
-
-        function escapeQuotes(str) {
-            return (str || '').replace(/'/g, "\\'");
+                        <div>
+                            <div class="food-price">₹${i.price}</div>
+                            <button class="btn-add" onclick="addToCart('${i.name.replace(/'/g, "\\'")}', '${i.item_name.replace(/'/g, "\\'")}', ${i.price})">+ Add to Cart</button>
+                            ${isStaff ? `<button class="btn-edit-price" onclick="openEdit(${i.id}, '${i.name.replace(/'/g, "\\'")}', '${i.item_name.replace(/'/g, "\\'")}', ${i.price}, ${i.rating})">✏️ Fix Price</button>` : ''}
+                            ${isAdmin ? `<button onclick="deleteItem(${i.id})" style="background:none; border:none; color:#e53e3e; font-size:11px; margin-top:4px; width:100%; cursor:pointer;">🗑️ Delete</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch { grid.innerHTML = '<p style="color:red;">Failed to load menu.</p>'; }
         }
 
         async function handleAddMenuItem(e) {
             e.preventDefault();
-            const res = await fetch("/api/admin/restaurants", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: document.getElementById("admin-res").value,
-                    item_name: document.getElementById("admin-dish").value,
-                    price: parseFloat(document.getElementById("admin-price").value),
-                    rating: parseFloat(document.getElementById("admin-rating").value)
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showToast("Dish added to restaurant menu!");
-                document.getElementById("admin-dish").value = "";
-                document.getElementById("admin-price").value = "";
-                loadRestaurants();
-            } else {
-                alert(data.error);
-            }
+            const data = await api('/api/admin/restaurants', 'POST', { name: id('admin-res').value, item_name: id('admin-dish').value, price: parseFloat(id('admin-price').value), rating: parseFloat(id('admin-rating').value) });
+            if (!data.error) { showToast('Dish added!'); id('admin-dish').value = ''; id('admin-price').value = ''; loadRestaurants(); } else alert(data.error);
         }
 
-        function openEditModal(id, res, dish, price, rating) {
-            document.getElementById("edit-item-id").value = id;
-            document.getElementById("edit-res-name").value = res;
-            document.getElementById("edit-dish-name").value = dish;
-            document.getElementById("edit-price").value = price;
-            document.getElementById("edit-rating").value = rating;
-            document.getElementById("price-modal").style.display = "flex";
+        function openEdit(idNum, res, dish, price, rating) {
+            id('edit-id').value = idNum; id('edit-res').value = res; id('edit-dish').value = dish; id('edit-price').value = price; id('edit-rating').value = rating;
+            id('price-modal').style.display = 'flex';
         }
 
-        function closeEditModal() {
-            document.getElementById("price-modal").style.display = "none";
-        }
-
-        async function handleSaveEditedItem(e) {
+        async function handleSaveEdit(e) {
             e.preventDefault();
-            const id = document.getElementById("edit-item-id").value;
-            const res = await fetch(`/api/restaurants/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: document.getElementById("edit-res-name").value,
-                    item_name: document.getElementById("edit-dish-name").value,
-                    price: parseFloat(document.getElementById("edit-price").value),
-                    rating: parseFloat(document.getElementById("edit-rating").value)
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showToast(data.message);
-                closeEditModal();
-                loadRestaurants();
-            } else {
-                alert(data.error);
-            }
+            const num = id('edit-id').value;
+            const data = await api('/api/restaurants/' + num, 'PUT', { name: id('edit-res').value, item_name: id('edit-dish').value, price: parseFloat(id('edit-price').value), rating: parseFloat(id('edit-rating').value) });
+            if (!data.error) { showToast('Price updated!'); id('price-modal').style.display = 'none'; loadRestaurants(); } else alert(data.error);
         }
 
-        async function handleDeleteItem(id) {
-            if (!confirm("Are you sure you want to remove this dish from the menu?")) return;
-            const res = await fetch(`/api/restaurants/${id}`, { method: "DELETE" });
-            const data = await res.json();
-            if (res.ok) {
-                showToast(data.message);
-                loadRestaurants();
-            } else {
-                alert(data.error);
-            }
+        async function deleteItem(num) {
+            if (!confirm('Remove this dish?')) return;
+            const data = await api('/api/restaurants/' + num, 'DELETE');
+            if (!data.error) { showToast('Deleted!'); loadRestaurants(); } else alert(data.error);
         }
 
-        // ================= CART LOGIC =================
-        function addToCart(restaurant, item, price) {
-            const existing = cartItems.find(c => c.item === item && c.restaurant === restaurant);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cartItems.push({ restaurant, item, price, quantity: 1 });
-            }
-            saveCart();
-            showToast(`Added "${item}" to Cart!`);
+        function addToCart(res, item, price) {
+            const ex = cartItems.find(c => c.item === item && c.restaurant === res);
+            if (ex) ex.quantity += 1; else cartItems.push({ restaurant: res, item, price, quantity: 1 });
+            saveCart(); showToast('Added to Cart!');
         }
 
-        function updateQty(idx, delta) {
-            cartItems[idx].quantity += delta;
+        function updateQty(idx, d) {
+            cartItems[idx].quantity += d;
             if (cartItems[idx].quantity <= 0) cartItems.splice(idx, 1);
-            saveCart();
-            renderCart();
+            saveCart(); renderCart();
         }
 
-        function clearCart() {
-            cartItems = [];
-            saveCart();
-            renderCart();
-        }
-
-        function saveCart() {
-            localStorage.setItem("zomato_cart", JSON.stringify(cartItems));
-            updateCartBadge();
-        }
-
-        function updateCartBadge() {
-            const total = cartItems.reduce((acc, c) => acc + c.quantity, 0);
-            document.getElementById("cart-badge").textContent = total;
-        }
+        function clearCart() { cartItems = []; saveCart(); renderCart(); }
+        function saveCart() { localStorage.setItem('zomato_cart', JSON.stringify(cartItems)); updateCartBadge(); }
+        function updateCartBadge() { id('cart-badge').textContent = cartItems.reduce((a, c) => a + c.quantity, 0); }
 
         function renderCart() {
-            const emptyEl = document.getElementById("cart-empty");
-            const contentEl = document.getElementById("cart-content");
-            const tbody = document.getElementById("cart-table-body");
-
-            if (cartItems.length === 0) {
-                emptyEl.classList.remove("hidden");
-                contentEl.classList.add("hidden");
-                return;
-            }
-
-            emptyEl.classList.add("hidden");
-            contentEl.classList.remove("hidden");
-
-            tbody.innerHTML = cartItems.map((c, idx) => `
-                <tr>
-                    <td><b>${c.item}</b></td>
-                    <td style="color:#718096;">${c.restaurant}</td>
-                    <td>₹${c.price}</td>
-                    <td>
-                        <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button>
-                        <span style="margin: 0 8px; font-weight: bold;">${c.quantity}</span>
-                        <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
-                    </td>
-                    <td><b>₹${(c.price * c.quantity).toFixed(2)}</b></td>
-                </tr>
-            `).join("");
-
-            const subtotal = cartItems.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-            const total = subtotal + 30.0;
-            document.getElementById("bill-subtotal").textContent = `₹${subtotal.toFixed(2)}`;
-            document.getElementById("bill-total").textContent = `₹${total.toFixed(2)}`;
+            const emp = id('cart-empty'), cnt = id('cart-content');
+            if (cartItems.length === 0) { emp.classList.remove('hidden'); cnt.classList.add('hidden'); return; }
+            emp.classList.add('hidden'); cnt.classList.remove('hidden');
+            id('cart-table-body').innerHTML = cartItems.map((c, i) => `<tr><td><b>${c.item}</b></td><td style="color:#718096;">${c.restaurant}</td><td>₹${c.price}</td><td><button class="qty-btn" onclick="updateQty(${i}, -1)">-</button> <span style="margin:0 5px; font-weight:bold;">${c.quantity}</span> <button class="qty-btn" onclick="updateQty(${i}, 1)">+</button></td><td><b>₹${(c.price * c.quantity).toFixed(2)}</b></td></tr>`).join('');
+            const sub = cartItems.reduce((a, c) => a + (c.price * c.quantity), 0);
+            id('bill-subtotal').textContent = '₹' + sub.toFixed(2);
+            id('bill-total').textContent = '₹' + (sub + 30).toFixed(2);
         }
 
-        // ================= PAYMENT GATEWAY (QR CODE SCAN) =================
-        function handleOpenPaymentGateway(e) {
+        function handleOpenPayment(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert("Please log in first to place your order!");
-                navigate(null, "/login");
-                return;
-            }
-            if (cartItems.length === 0) return;
-
-            pendingAddress = document.getElementById("checkout-address").value.trim();
-            if (!pendingAddress) {
-                alert("Please enter your delivery address!");
-                return;
-            }
-
-            const subtotal = cartItems.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-            const total = (subtotal + 30.0).toFixed(2);
-
-            // Populate Payment Gateway Modal
-            document.getElementById("qr-payable-amount").textContent = `₹${total}`;
-
-            // Generate UPI QR Code URL
-            const upiData = `upi://pay?pa=zomato@icici&pn=ZomatoOrder&am=${total}&cu=INR&tn=FoodOrder`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiData)}`;
-            document.getElementById("qr-image").src = qrUrl;
-
-            // Open Modal
-            document.getElementById("payment-modal").style.display = "flex";
-        }
-
-        function closePaymentModal() {
-            document.getElementById("payment-modal").style.display = "none";
+            if (!currentUser) { alert('Please login to place order!'); navigate(null, '/login'); return; }
+            pendingAddress = id('checkout-address').value.trim();
+            if (!pendingAddress) { alert('Enter delivery address!'); return; }
+            const total = (cartItems.reduce((a, c) => a + (c.price * c.quantity), 0) + 30).toFixed(2);
+            id('qr-amount').textContent = '₹' + total;
+            const upi = `upi://pay?pa=zomato@icici&pn=Zomato&am=${total}&cu=INR`;
+            id('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upi)}`;
+            id('payment-modal').style.display = 'flex';
         }
 
         async function executeOrderPayment() {
-            const btn = document.getElementById("btn-confirm-pay");
-            btn.disabled = true;
-            btn.innerHTML = "<span>⏳ Verifying payment with bank...</span>";
-
-            // Simulate quick verification and pass payment
+            const btn = id('btn-confirm-pay');
+            btn.disabled = true; btn.textContent = '⏳ Verifying payment...';
             setTimeout(async () => {
                 try {
-                    for (const item of cartItems) {
-                        await fetch("/api/order", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                customer_name: currentUser.username,
-                                restaurant_name: item.restaurant,
-                                item_name: item.item,
-                                price: item.price,
-                                quantity: item.quantity,
-                                address: pendingAddress
-                            })
-                        });
+                    for (const it of cartItems) {
+                        await api('/api/order', 'POST', { customer_name: currentUser.username, restaurant_name: it.restaurant, item_name: it.item, price: it.price, quantity: it.quantity, address: pendingAddress });
                     }
-
-                    closePaymentModal();
+                    id('payment-modal').style.display = 'none';
                     clearCart();
-                    alert("🎉 Payment Successful! Your order has been placed and sent to the kitchen.");
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>✅ I Have Scanned & Paid</span>";
-                    navigate(null, "/orders");
-                } catch (err) {
-                    alert("Failed to submit order: " + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>✅ I Have Scanned & Paid</span>";
-                }
-            }, 1200);
+                    alert('🎉 Payment Successful! Order placed.');
+                    btn.disabled = false; btn.textContent = '✅ I Have Scanned & Paid';
+                    navigate(null, '/orders');
+                } catch (err) { alert('Order error: ' + err.message); btn.disabled = false; btn.textContent = '✅ I Have Scanned & Paid'; }
+            }, 1000);
         }
 
-        // ================= ORDERS =================
         async function loadOrders() {
-            const container = document.getElementById("orders-container");
-            if (!currentUser) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding:30px; color:#718096;">
-                        <p style="margin-bottom:12px;">Please sign in to access order management.</p>
-                        <a href="/login" onclick="navigate(event, '/login')" class="btn-submit" style="display:inline-block; width:auto; text-decoration:none; padding:8px 18px;">Go to Login</a>
-                    </div>
-                `;
-                return;
-            }
-
+            const container = id('orders-container');
+            if (!currentUser) { container.innerHTML = '<div style="text-align:center; padding:20px;"><p>Please sign in.</p><a href="/login" onclick="navigate(event, \'/login\')" class="btn-submit" style="display:inline-block; width:auto; text-decoration:none; padding:6px 14px; margin-top:8px;">Login</a></div>'; return; }
             try {
-                const res = await fetch("/api/orders");
-                const orders = await res.json();
-
-                if (orders.length === 0) {
-                    container.innerHTML = "<p style='text-align:center; color:#718096; padding:30px;'>No orders found.</p>";
-                    return;
-                }
-
+                const orders = await api('/api/orders');
+                if (orders.length === 0) { container.innerHTML = '<p style="text-align:center; color:#718096; padding:20px;">No orders found.</p>'; return; }
                 const canManage = currentUser.role === 'admin' || currentUser.role === 'employee';
-
-                container.innerHTML = `
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Restaurant</th>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Total</th>
-                                <th>Address</th>
-                                <th>Status</th>
-                                ${canManage ? '<th>Action (Process Order)</th>' : ''}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${orders.map(o => `
-                                <tr>
-                                    <td>#${o.id}</td>
-                                    <td><b>${o.customer_name}</b></td>
-                                    <td>${o.restaurant_name}</td>
-                                    <td>${o.item_name}</td>
-                                    <td>${o.quantity}</td>
-                                    <td><b style="color:#e23744;">₹${o.total_price}</b></td>
-                                    <td style="font-size:12px; color:#4a5568;">${o.address}</td>
-                                    <td><span class="badge-status badge-${o.status}">${o.status}</span></td>
-                                    ${canManage ? `
-                                        <td>
-                                            ${o.status === 'PLACED' ? `<button onclick="updateStatus(${o.id}, 'PREPARING')" style="font-size:11px; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e0; background:#ebf8ff; color:#2b6cb0; font-weight:bold; cursor:pointer;">Set Preparing →</button>` : ''}
-                                            ${o.status === 'PREPARING' ? `<button onclick="updateStatus(${o.id}, 'DELIVERED')" style="font-size:11px; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e0; background:#f0fff4; color:#22543d; font-weight:bold; cursor:pointer;">Mark Delivered ✓</button>` : ''}
-                                            ${o.status === 'DELIVERED' ? `<span style="color:#38a169; font-weight:bold; font-size:12px;">Completed ✓</span>` : ''}
-                                        </td>
-                                    ` : ''}
-                                </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                `;
-            } catch {
-                container.innerHTML = "<p style='color:red;'>Failed to load orders from Database.</p>";
-            }
+                container.innerHTML = `<table class="cart-table"><thead><tr><th>#ID</th><th>Customer</th><th>Restaurant</th><th>Item</th><th>Qty</th><th>Total</th><th>Address</th><th>Status</th>${canManage ? '<th>Action</th>' : ''}</tr></thead><tbody>` +
+                    orders.map(o => `<tr><td>#${o.id}</td><td><b>${o.customer_name}</b></td><td>${o.restaurant_name}</td><td>${o.item_name}</td><td>${o.quantity}</td><td><b style="color:#e23744;">₹${o.total_price}</b></td><td style="font-size:12px;">${o.address}</td><td><span class="badge-status badge-${o.status}">${o.status}</span></td>${canManage ? `<td>${o.status === 'PLACED' ? `<button onclick="updateStatus(${o.id}, 'PREPARING')" style="font-size:11px; padding:3px 6px; cursor:pointer;">Set Preparing →</button>` : (o.status === 'PREPARING' ? `<button onclick="updateStatus(${o.id}, 'DELIVERED')" style="font-size:11px; padding:3px 6px; cursor:pointer;">Mark Delivered ✓</button>` : '<span style="color:#38a169; font-weight:bold; font-size:11px;">Done ✓</span>')}</td>` : ''}</tr>`).join('') +
+                    '</tbody></table>';
+            } catch { container.innerHTML = '<p style="color:red;">Failed to load orders.</p>'; }
         }
 
         async function updateStatus(orderId, status) {
-            await fetch(`/api/orders/${orderId}/status`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status })
-            });
-            showToast(`Order #${orderId} marked as ${status}!`);
-            loadOrders();
+            await fetch('/api/orders/' + orderId + '/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+            showToast('Order #' + orderId + ' updated to ' + status); loadOrders();
         }
 
-        // Initialize
-        updateCartBadge();
-        checkSession().then(handleRoute);
+        window.addEventListener('DOMContentLoaded', () => { updateCartBadge(); handleRoute(); checkSession(); });
     </script>
 </body>
 </html>
