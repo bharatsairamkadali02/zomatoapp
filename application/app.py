@@ -57,8 +57,9 @@ def register():
     password = data.get("password", "").strip()
     role = data.get("role", "user").strip()
 
-    # Allowed roles: user (Customer), employee (Employee), admin (Admin)
-    if role not in ("user", "employee", "admin"):
+    # Allowed roles for public signup: user (Customer), admin (Admin)
+    # Employee accounts cannot be created via public signup
+    if role not in ("user", "admin"):
         role = "user"
 
     if not username or not password:

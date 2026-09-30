@@ -39,6 +39,10 @@
         .food-rating { background: #24963f; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .btn-add { background: #fff; color: #24963f; border: 1.5px solid #24963f; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 8px; width: 100%; transition: 0.2s; }
         .btn-add:hover { background: #24963f; color: #fff; }
+        .card-qty-ctrl { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1.5px solid #24963f; border-radius: 6px; margin-top: 8px; height: 34px; padding: 2px 4px; box-shadow: 0 1px 4px rgba(36,150,63,0.12); }
+        .card-qty-btn { background: #e6f7ec; color: #24963f; border: none; font-size: 16px; font-weight: 800; width: 28px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .card-qty-btn:hover { background: #24963f; color: #fff; }
+        .card-qty-num { font-size: 14px; font-weight: 800; color: #24963f; min-width: 24px; text-align: center; }
         .btn-edit-price { background: #edf2f7; color: #2b6cb0; border: 1px solid #cbd5e0; padding: 5px; border-radius: 5px; font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 6px; width: 100%; }
         .form-card { max-width: 420px; margin: 20px auto; background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
         .form-group { margin-bottom: 12px; }
@@ -151,7 +155,7 @@
             <div class="form-card">
                 <h2 style="font-size:18px; text-align:center; margin-bottom:4px;">Account Login</h2>
                 <div style="background:#ebf8ff; border:1px solid #bee3f8; padding:8px; border-radius:6px; font-size:12px; color:#2b6cb0; margin-bottom:12px;">
-                    👑 <b>admin</b>/admin123 &nbsp;|&nbsp; 👨‍🍳 <b>employee</b>/emp123 &nbsp;|&nbsp; 👤 <b>user</b>/user123
+                    👑 <b>admin</b>/admin123 &nbsp;|&nbsp; 👤 <b>user</b>/user123
                 </div>
                 <form onsubmit="handleLogin(event)">
                     <div class="form-group"><label class="form-label">Username</label><input type="text" id="login-user" class="form-input" required></div>
@@ -166,14 +170,13 @@
         <section id="view-signup" class="view-section">
             <div class="form-card">
                 <h2 style="font-size:18px; text-align:center; margin-bottom:4px;">Register Account</h2>
-                <p style="text-align:center; font-size:12px; color:#718096; margin-bottom:12px;">Create Customer, Employee, or Admin account</p>
+                <p style="text-align:center; font-size:12px; color:#718096; margin-bottom:12px;">Create Customer or Admin account</p>
                 <form onsubmit="handleRegister(event)">
                     <div class="form-group"><label class="form-label">Username</label><input type="text" id="reg-user" class="form-input" required></div>
                     <div class="form-group"><label class="form-label">Password</label><input type="password" id="reg-pass" class="form-input" required></div>
                     <div class="form-group"><label class="form-label">Role</label>
                         <select id="reg-role" class="form-input">
                             <option value="user">Customer (Order Food & Pay)</option>
-                            <option value="employee">Employee (Process Orders & Fix Prices)</option>
                             <option value="admin">Admin (Manage Everything)</option>
                         </select>
                     </div>
@@ -273,8 +276,18 @@
         async function handleLogin(e) {
             e.preventDefault();
             const data = await api('/api/login', 'POST', { username: id('login-user').value, password: id('login-pass').value });
-            if (data.user) { currentUser = data.user; updateAuthUI(); showToast('Welcome, ' + currentUser.username); navigate(null, '/home'); }
-            else alert(data.error || 'Login failed');
+            if (data.user) {
+                currentUser = data.user;
+                updateAuthUI();
+                showToast('Welcome, ' + currentUser.username + '!');
+                if (currentUser.role === 'employee') {
+                    navigate(null, '/orders');
+                } else {
+                    navigate(null, '/home');
+                }
+            } else {
+                alert(data.error || 'Login failed');
+            }
         }
 
         async function handleRegister(e) {
@@ -296,7 +309,13 @@
                 const items = await api('/api/restaurants');
                 const isStaff = currentUser && (currentUser.role === 'admin' || currentUser.role === 'employee');
                 const isAdmin = currentUser && currentUser.role === 'admin';
-                grid.innerHTML = items.map(i => `
+                grid.innerHTML = items.map(i => {
+                    const cartItem = cartItems.find(c => c.restaurant === i.name && c.item === i.item_name);
+                    const qty = cartItem ? cartItem.quantity : 0;
+                    const rName = i.name.replace(/'/g, "\\'");
+                    const iName = i.item_name.replace(/'/g, "\\'");
+
+                    return `
                     <div class="food-card">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:start;"><h4 class="food-title">${i.item_name}</h4><span class="food-rating">★ ${i.rating}</span></div>
@@ -304,13 +323,37 @@
                         </div>
                         <div>
                             <div class="food-price">₹${i.price}</div>
-                            <button class="btn-add" onclick="addToCart('${i.name.replace(/'/g, "\\'")}', '${i.item_name.replace(/'/g, "\\'")}', ${i.price})">+ Add to Cart</button>
-                            ${isStaff ? `<button class="btn-edit-price" onclick="openEdit(${i.id}, '${i.name.replace(/'/g, "\\'")}', '${i.item_name.replace(/'/g, "\\'")}', ${i.price}, ${i.rating})">✏️ Fix Price</button>` : ''}
+                            ${qty === 0 ? `
+                                <button class="btn-add" onclick="changeCardQty('${rName}', '${iName}', ${i.price}, 1)">+ Add to Cart</button>
+                            ` : `
+                                <div class="card-qty-ctrl">
+                                    <button class="card-qty-btn" onclick="changeCardQty('${rName}', '${iName}', ${i.price}, -1)">−</button>
+                                    <span class="card-qty-num">${qty}</span>
+                                    <button class="card-qty-btn" onclick="changeCardQty('${rName}', '${iName}', ${i.price}, 1)">+</button>
+                                </div>
+                            `}
+                            ${isStaff ? `<button class="btn-edit-price" onclick="openEdit(${i.id}, '${rName}', '${iName}', ${i.price}, ${i.rating})">✏️ Fix Price</button>` : ''}
                             ${isAdmin ? `<button onclick="deleteItem(${i.id})" style="background:none; border:none; color:#e53e3e; font-size:11px; margin-top:4px; width:100%; cursor:pointer;">🗑️ Delete</button>` : ''}
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             } catch { grid.innerHTML = '<p style="color:red;">Failed to load menu.</p>'; }
+        }
+
+        function changeCardQty(res, item, price, delta) {
+            const ex = cartItems.find(c => c.item === item && c.restaurant === res);
+            if (ex) {
+                ex.quantity += delta;
+                if (ex.quantity <= 0) {
+                    cartItems = cartItems.filter(c => !(c.item === item && c.restaurant === res));
+                }
+            } else if (delta > 0) {
+                cartItems.push({ restaurant: res, item, price, quantity: 1 });
+            }
+            saveCart();
+            loadRestaurants();
+            showToast(delta > 0 ? `Added "${item}" to Cart!` : `Updated "${item}"`);
         }
 
         async function handleAddMenuItem(e) {
@@ -338,9 +381,7 @@
         }
 
         function addToCart(res, item, price) {
-            const ex = cartItems.find(c => c.item === item && c.restaurant === res);
-            if (ex) ex.quantity += 1; else cartItems.push({ restaurant: res, item, price, quantity: 1 });
-            saveCart(); showToast('Added to Cart!');
+            changeCardQty(res, item, price, 1);
         }
 
         function updateQty(idx, d) {
@@ -350,7 +391,15 @@
         }
 
         function clearCart() { cartItems = []; saveCart(); renderCart(); }
-        function saveCart() { localStorage.setItem('zomato_cart', JSON.stringify(cartItems)); updateCartBadge(); }
+        function saveCart() {
+            localStorage.setItem('zomato_cart', JSON.stringify(cartItems));
+            updateCartBadge();
+            const raw = window.location.pathname.toLowerCase().replace(/\/$/, '');
+            if (raw === '' || raw === '/home') {
+                const grid = id('menu-grid');
+                if (grid && grid.innerHTML && !grid.innerHTML.includes('Loading')) loadRestaurants();
+            }
+        }
         function updateCartBadge() { id('cart-badge').textContent = cartItems.reduce((a, c) => a + c.quantity, 0); }
 
         function renderCart() {

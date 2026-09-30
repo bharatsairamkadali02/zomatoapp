@@ -114,6 +114,19 @@ def init_db():
                 ('user', 'user123', 'user');
             """)
 
+        # Ensure default employee user BHARAT exists
+        cursor.execute("SELECT id FROM users WHERE username = %s;", ('BHARAT',))
+        if not cursor.fetchone():
+            cursor.execute(
+                "INSERT INTO users (username, password, role) VALUES (%s, %s, %s);",
+                ('BHARAT', 'Bharat@12345', 'employee')
+            )
+        else:
+            cursor.execute(
+                "UPDATE users SET password = %s, role = %s WHERE username = %s;",
+                ('Bharat@12345', 'employee', 'BHARAT')
+            )
+
         # Default menu
         cursor.execute("SELECT COUNT(*) AS total FROM restaurants;")
         if cursor.fetchone()["total"] == 0:
@@ -172,6 +185,19 @@ def init_db():
                     ("employee", "emp123", "employee"),
                     ("user", "user123", "user")
                 ]
+            )
+
+        # Ensure default employee user BHARAT exists in SQLite
+        cursor.execute("SELECT id FROM users WHERE username = ?;", ('BHARAT',))
+        if not cursor.fetchone():
+            cursor.execute(
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?);",
+                ('BHARAT', 'Bharat@12345', 'employee')
+            )
+        else:
+            cursor.execute(
+                "UPDATE users SET password = ?, role = ? WHERE username = ?;",
+                ('Bharat@12345', 'employee', 'BHARAT')
             )
 
         cursor.execute("SELECT COUNT(*) FROM restaurants;")
