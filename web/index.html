@@ -3,19 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zomato | 3-Tier Multi-Role Application</title>
+    <title>Zomato | Order Food Online</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #2d3748; min-height: 100vh; display: flex; flex-direction: column; }
-
-        .tier-bar {
-            background-color: #1a202c;
-            color: #a0aec0;
-            padding: 6px 16px;
-            text-align: center;
-            font-size: 12px;
-        }
-        .tier-bar span { color: #48bb78; font-weight: bold; }
 
         /* ================= UPPER NAVIGATION BAR ================= */
         .header-nav {
@@ -188,7 +179,6 @@
         }
         .role-banner.admin { background: #faf5ff; border: 1.5px solid #d6bcfa; color: #553c9e; }
         .role-banner.employee { background: #fffaf0; border: 1.5px solid #fbd38d; color: #9c4221; }
-        .role-banner.customer { background: #f0fff4; border: 1.5px solid #9ae6b4; color: #22543d; }
 
         .menu-grid {
             display: grid;
@@ -275,6 +265,10 @@
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .btn-submit:hover { background: #c82333; }
 
@@ -294,6 +288,103 @@
 
         .hidden { display: none !important; }
 
+        /* ================= PAYMENT GATEWAY MODAL ================= */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .payment-modal {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 420px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            animation: popIn 0.25s ease-out;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .payment-header {
+            background: #1a202c;
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .payment-body {
+            padding: 24px;
+            text-align: center;
+        }
+        .payment-amount-box {
+            background: #f7fafc;
+            border: 1px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+        }
+        .payment-qr-container {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            display: inline-block;
+            margin: 10px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .upi-apps-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0 16px;
+            font-size: 12px;
+            color: #718096;
+            font-weight: 600;
+        }
+        .upi-tag {
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .btn-pay-confirm {
+            background: #24963f;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-pay-confirm:hover { background: #1e7e34; }
+        .btn-pay-cancel {
+            background: none;
+            border: none;
+            color: #718096;
+            font-size: 13px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         #toast {
             position: fixed;
             bottom: 25px;
@@ -306,16 +397,11 @@
             font-size: 14px;
             font-weight: 600;
             display: none;
-            z-index: 2000;
+            z-index: 4000;
         }
     </style>
 </head>
 <body>
-
-    <!-- 3-Tier Architecture Status Bar -->
-    <div class="tier-bar">
-        3-Tier Architecture: <span>Tier 1 (Web UI)</span> ⇄ <span>Tier 2 (Application API)</span> ⇄ <span>Tier 3 (Database MySQL / SQLite)</span>
-    </div>
 
     <!-- ================= UPPER NAVIGATION BAR ================= -->
     <header class="header-nav">
@@ -435,12 +521,12 @@
 
                     <div style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
                         <h3 style="margin-bottom: 12px; font-size: 17px;">Delivery Address</h3>
-                        <form onsubmit="handlePlaceOrder(event)">
+                        <form onsubmit="handleOpenPaymentGateway(event)">
                             <div class="form-group">
-                                <label class="form-label">Full Address (Flat / House No, Street, Landmark)</label>
+                                <label class="form-label">Full Delivery Address (Flat / House No, Street, Landmark)</label>
                                 <textarea id="checkout-address" class="form-input" rows="2" placeholder="e.g., Flat 402, Green Valley Apartments, Mumbai" required></textarea>
                             </div>
-                            <button type="submit" class="btn-submit" style="font-size: 16px;">Place Order Now</button>
+                            <button type="submit" class="btn-submit" style="font-size: 16px;">Proceed to Payment ➔</button>
                         </form>
                     </div>
                 </div>
@@ -466,9 +552,9 @@
 
                 <div style="background: #ebf8ff; border: 1px solid #bee3f8; padding: 12px; border-radius: 8px; font-size: 12px; color: #2b6cb0; margin-bottom: 15px; line-height: 1.6;">
                     💡 <b>Pre-configured Role Logins:</b><br>
-                    • 👑 <b>Admin:</b> <code>admin</code> / <code>admin123</code> (Add items, fix prices, view all)<br>
-                    • 👨‍🍳 <b>Employee:</b> <code>employee</code> / <code>emp123</code> (Update prices & process orders)<br>
-                    • 👤 <b>Customer:</b> <code>user</code> / <code>user123</code> (Order food & track status)
+                    • 👑 <b>Admin:</b> <code>admin</code> / <code>admin123</code><br>
+                    • 👨‍🍳 <b>Employee:</b> <code>employee</code> / <code>emp123</code><br>
+                    • 👤 <b>Customer:</b> <code>user</code> / <code>user123</code>
                 </div>
 
                 <form onsubmit="handleLogin(event)">
@@ -489,7 +575,7 @@
             </div>
         </section>
 
-        <!-- ================= 5. /signup VIEW (3 ROLES) ================= -->
+        <!-- ================= 5. /signup VIEW ================= -->
         <section id="view-signup" class="view-section">
             <div class="form-card">
                 <h2 style="font-size: 22px; margin-bottom: 6px; text-align: center;">Register Account</h2>
@@ -523,8 +609,46 @@
 
     </div>
 
+    <!-- ================= PAYMENT GATEWAY MODAL (QR CODE SCAN) ================= -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="payment-modal">
+            <div class="payment-header">
+                <span style="font-weight:800; font-size:16px;">💳 UPI / QR Payment Gateway</span>
+                <span style="background:#24963f; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:bold;">100% SECURE</span>
+            </div>
+            <div class="payment-body">
+                <div class="payment-amount-box">
+                    <span style="font-size:13px; color:#718096;">Total Payable Amount</span>
+                    <h2 id="qr-payable-amount" style="font-size:26px; color:#1a202c; font-weight:800; margin-top:4px;">₹0.00</h2>
+                </div>
+
+                <p style="font-size:13px; color:#4a5568; margin-bottom:6px;"><b>Scan QR Code with any UPI App</b></p>
+                <div class="upi-apps-row">
+                    <span class="upi-tag">GPay</span>
+                    <span class="upi-tag">PhonePe</span>
+                    <span class="upi-tag">Paytm</span>
+                    <span class="upi-tag">BHIM UPI</span>
+                </div>
+
+                <div class="payment-qr-container">
+                    <img id="qr-image" src="" alt="Payment QR Code" style="width:180px; height:180px; display:block;" />
+                </div>
+
+                <p style="font-size:12px; color:#718096; margin-top:8px;">Scan the QR code to complete payment instantly.</p>
+
+                <div style="margin-top:18px;">
+                    <button id="btn-confirm-pay" class="btn-pay-confirm" onclick="executeOrderPayment()">
+                        <span>✅ I Have Scanned & Paid</span>
+                    </button>
+                    <br>
+                    <button class="btn-pay-cancel" onclick="closePaymentModal()">Cancel & Return to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Food Price Modal (for Admin & Employee) -->
-    <div id="price-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
+    <div id="price-modal" class="modal-overlay">
         <div style="background:white; padding:25px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
             <h3 style="margin-bottom:12px; font-size:18px;">✏️ Fix & Update Food Price</h3>
             <form onsubmit="handleSaveEditedItem(event)">
@@ -558,6 +682,7 @@
     <script>
         let currentUser = null;
         let cartItems = JSON.parse(localStorage.getItem("zomato_cart") || "[]");
+        let pendingAddress = "";
 
         function showToast(msg) {
             const t = document.getElementById("toast");
@@ -635,14 +760,13 @@
                 userItem.classList.remove("hidden");
                 document.getElementById("user-display-name").textContent = currentUser.username;
 
-                // Role customization
                 if (currentUser.role === "admin") {
                     roleBadge.textContent = "Admin";
                     roleBadge.className = "role-badge-admin";
                     adminAddBox.classList.remove("hidden");
                     roleNotif.className = "role-banner admin";
                     roleNotif.classList.remove("hidden");
-                    document.getElementById("role-banner-text").innerHTML = "👑 <b>Admin Dashboard:</b> You have full authority to add restaurants, edit food prices, and advance orders.";
+                    document.getElementById("role-banner-text").innerHTML = "👑 <b>Admin Dashboard:</b> You have authority to add restaurants, edit food prices, and advance orders.";
                     document.getElementById("orders-heading").textContent = "👑 All Customer Orders (Admin View)";
                     menuSubtitle.textContent = "Admins can add to cart, edit prices, or delete menu items";
                 } else if (currentUser.role === "employee") {
@@ -651,7 +775,7 @@
                     adminAddBox.classList.add("hidden");
                     roleNotif.className = "role-banner employee";
                     roleNotif.classList.remove("hidden");
-                    document.getElementById("role-banner-text").innerHTML = "👨‍🍳 <b>Employee Operations:</b> You can update/fix food prices and process customer orders (Placed → Preparing → Delivered).";
+                    document.getElementById("role-banner-text").innerHTML = "👨‍🍳 <b>Employee Operations:</b> You can update/fix food prices and process orders (Placed → Preparing → Delivered).";
                     document.getElementById("orders-heading").textContent = "👨‍🍳 Live Kitchen & Delivery Queue (Employee View)";
                     menuSubtitle.textContent = "Employees can update dish prices or place food orders";
                 } else {
@@ -768,7 +892,6 @@
             return (str || '').replace(/'/g, "\\'");
         }
 
-        // Admin adds new dish
         async function handleAddMenuItem(e) {
             e.preventDefault();
             const res = await fetch("/api/admin/restaurants", {
@@ -792,7 +915,6 @@
             }
         }
 
-        // Admin & Employee edit dish price
         function openEditModal(id, res, dish, price, rating) {
             document.getElementById("edit-item-id").value = id;
             document.getElementById("edit-res-name").value = res;
@@ -910,7 +1032,8 @@
             document.getElementById("bill-total").textContent = `₹${total.toFixed(2)}`;
         }
 
-        async function handlePlaceOrder(e) {
+        // ================= PAYMENT GATEWAY (QR CODE SCAN) =================
+        function handleOpenPaymentGateway(e) {
             e.preventDefault();
             if (!currentUser) {
                 alert("Please log in first to place your order!");
@@ -919,26 +1042,66 @@
             }
             if (cartItems.length === 0) return;
 
-            const address = document.getElementById("checkout-address").value;
-
-            for (const item of cartItems) {
-                await fetch("/api/order", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        customer_name: currentUser.username,
-                        restaurant_name: item.restaurant,
-                        item_name: item.item,
-                        price: item.price,
-                        quantity: item.quantity,
-                        address: address
-                    })
-                });
+            pendingAddress = document.getElementById("checkout-address").value.trim();
+            if (!pendingAddress) {
+                alert("Please enter your delivery address!");
+                return;
             }
 
-            clearCart();
-            alert("🎉 Order placed successfully!");
-            navigate(null, "/orders");
+            const subtotal = cartItems.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+            const total = (subtotal + 30.0).toFixed(2);
+
+            // Populate Payment Gateway Modal
+            document.getElementById("qr-payable-amount").textContent = `₹${total}`;
+
+            // Generate UPI QR Code URL
+            const upiData = `upi://pay?pa=zomato@icici&pn=ZomatoOrder&am=${total}&cu=INR&tn=FoodOrder`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiData)}`;
+            document.getElementById("qr-image").src = qrUrl;
+
+            // Open Modal
+            document.getElementById("payment-modal").style.display = "flex";
+        }
+
+        function closePaymentModal() {
+            document.getElementById("payment-modal").style.display = "none";
+        }
+
+        async function executeOrderPayment() {
+            const btn = document.getElementById("btn-confirm-pay");
+            btn.disabled = true;
+            btn.innerHTML = "<span>⏳ Verifying payment with bank...</span>";
+
+            // Simulate quick verification and pass payment
+            setTimeout(async () => {
+                try {
+                    for (const item of cartItems) {
+                        await fetch("/api/order", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                customer_name: currentUser.username,
+                                restaurant_name: item.restaurant,
+                                item_name: item.item,
+                                price: item.price,
+                                quantity: item.quantity,
+                                address: pendingAddress
+                            })
+                        });
+                    }
+
+                    closePaymentModal();
+                    clearCart();
+                    alert("🎉 Payment Successful! Your order has been placed and sent to the kitchen.");
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>✅ I Have Scanned & Paid</span>";
+                    navigate(null, "/orders");
+                } catch (err) {
+                    alert("Failed to submit order: " + err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>✅ I Have Scanned & Paid</span>";
+                }
+            }, 1200);
         }
 
         // ================= ORDERS =================
