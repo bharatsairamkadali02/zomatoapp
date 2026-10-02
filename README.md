@@ -1,19 +1,20 @@
-# 2-Tier Zomato Web Application
+# 3-Tier Zomato Web Application
 
-A cloud-native food ordering and restaurant management platform deployed using a **2-Tier Architecture** on Amazon Web Services (AWS).
+A cloud-native food ordering and restaurant management platform deployed using a **true 3-Tier Architecture** on Amazon Web Services (AWS), with each tier running on a **separate machine**.
 
 ---
 
 ## 📌 1. Project Overview
 
-The **2-Tier Zomato Application** is an enterprise-pattern web application that provides real-time food browsing, cart management with dynamic item quantity controls, UPI QR Code payment integration, and multi-role operations for Customers, Employees, and Administrators.
+The **3-Tier Zomato Application** separates concerns across three independent layers:
 
-### Architecture Model:
-* **Tier 1 — Web & Application Tier (AWS EC2):**
-  * **Presentation Layer:** Responsive single-page interface built with HTML5, CSS3, and Vanilla JavaScript with path-based client-side routing (`/home`, `/cart`, `/orders`, `/login`, `/signup`).
-  * **Application / Logic Layer:** Python Flask REST API handling user authentication, menu catalog management, order processing, and payment gateway simulation.
-* **Tier 2 — Database Tier (AWS RDS MySQL):**
-  * Managed MySQL 8.0 relational database on AWS RDS handling persistent storage for users, menu items, and customer orders. Includes automatic fallback to local SQLite for offline development.
+| Tier | Machine | Role |
+| :--- | :--- | :--- |
+| **Tier 1 — Web Server** | AWS EC2 (Ubuntu) | Nginx serves the static SPA (HTML, CSS, JS) on Port 80 |
+| **Tier 2 — App Server** | AWS EC2 (Ubuntu) | Python Flask REST API on Port 5000 — all business logic |
+| **Tier 3 — Database Server** | AWS RDS (MySQL 8.0) | Persistent storage — users, restaurants, orders |
+
+> The frontend talks to the backend via cross-origin fetch (CORS + session credentials). The backend talks to the database over Port 3306.
 
 ---
 
@@ -25,19 +26,22 @@ graph TD
         Browser["Desktop & Mobile Browsers"]
     end
 
-    subgraph Tier1["Tier 1: Web & Application Server (AWS EC2)"]
-        WebUI["Web Frontend (HTML5 / CSS3 / Vanilla JS)<br/>• Upper Navigation with Icons<br/>• Dynamic [- qty +] Food Cards<br/>• UPI QR Code Payment Gateway"]
-        FlaskAPI["Flask Backend API (Python 3)<br/>• Session Authentication<br/>• Menu Catalog Engine<br/>• Order Lifecycle Processing"]
-        Systemd["systemd Service Daemon<br/>(zomato.service - Port 8000)"]
+    subgraph Tier1["Tier 1: Web Server EC2 — Port 80"]
+        Nginx["Nginx Static File Server<br/>• Serves index.html + config.js<br/>• SPA routing via try_files<br/>• Security headers"]
     end
 
-    subgraph Tier2["Tier 2: Database Server (AWS RDS)"]
+    subgraph Tier2["Tier 2: App Server EC2 — Port 5000"]
+        FlaskAPI["Flask REST API (Python 3)<br/>• Flask-CORS (cross-origin sessions)<br/>• Session Authentication<br/>• Menu Catalog Engine<br/>• Order Lifecycle Processing"]
+    end
+
+    subgraph Tier3["Tier 3: Database Server (AWS RDS)"]
         MySQL["AWS RDS MySQL 8.0<br/>• users Table<br/>• restaurants Table<br/>• orders Table"]
-        SQLiteFallback["Local SQLite Fallback<br/>(Offline / Dev Mode)"]
+        SQLiteFallback["Local SQLite Fallback<br/>(Dev Mode: USE_SQLITE=true)"]
     end
 
-    Browser -->|HTTP Port 8000| WebUI
-    WebUI <-->|REST API JSON| FlaskAPI
+    Browser -->|HTTP Port 80| Nginx
+    Nginx -->|Serves Static Files| Browser
+    Browser <-->|REST API JSON + CORS| FlaskAPI
     FlaskAPI <-->|MySQL Protocol Port 3306| MySQL
     FlaskAPI -.->|Fallback if RDS offline| SQLiteFallback
 ```
@@ -46,11 +50,11 @@ graph TD
 
 ## 👥 3. User Roles & Capabilities
 
-| Role | Access Type | Default Credentials | Permissions & Key Features |
-| :--- | :--- | :--- | :--- |
-| **👤 Customer** | Public Signup & Login | `user` / `user123` | • Browse restaurant dishes<br/>• Real-time `[ - ] [qty] [ + ]` counter on dish cards<br/>• Add items to cart & review bill breakdown<br/>• Scan dynamic UPI QR Code to pay<br/>• View personal order history & live order status |
-| **👨‍🍳 Employee** | Private Pre-seeded Account *(Hidden from public signup)* | `BHARAT` / `Bharat@12345` | • **Automatic direct redirect to Live Kitchen Queue (`/orders`) on login**<br/>• View all incoming customer orders across restaurants<br/>• Advance order status: `PLACED` &rarr; `PREPARING` &rarr; `DELIVERED`<br/>• Fix and update food prices and ratings on the menu |
-| **👑 Admin** | Public / Privileged Account | `admin` / `admin123` | • Full administrative authority across the platform<br/>• Add new restaurants & dishes with price/rating<br/>• Update/fix prices and dish details<br/>• Delete dishes from the menu<br/>• View all platform orders and process fulfillment |
+| Role | Default Credentials | Permissions |
+| :--- | :--- | :--- |
+| **👤 Customer** | `user` / `user123` | Browse menu, dynamic `[−][qty][+]` cart, UPI QR payment, view own orders |
+| **👨‍🍳 Employee** | `BHARAT` / `Bharat@12345` | Auto-redirect to Kitchen Queue, advance order status: `PLACED→PREPARING→DELIVERED` |
+| **👑 Admin** | `admin` / `admin123` | Add/edit/delete dishes, view & manage all orders |
 
 ---
 
@@ -59,23 +63,24 @@ graph TD
 ```text
 zomatoapp/
 ├── application/
-│   ├── app.py             # Tier 1 Backend: Flask REST API & Web Page Routing
-│   └── requirements.txt   # Python Dependencies (Flask, PyMySQL, Cryptography)
+│   ├── app.py                  # Tier 2: Flask REST API (API only, no static serving)
+│   ├── requirements.txt        # Python Dependencies (Flask, Flask-CORS, PyMySQL)
+│   └── zomato-app.service      # systemd service for Tier 2 App Server EC2
 ├── database/
-│   └── db.py              # Tier 2 Database: AWS RDS MySQL connector + SQLite fallback & CRUD queries
+│   └── db.py                   # Tier 3: AWS RDS MySQL connector + SQLite fallback
 ├── web/
-│   └── index.html         # Tier 1 Frontend: Single-Page Application (HTML, CSS, JS)
-├── run.py                 # Multi-Tier Application Runner (Port 8000)
-├── .gitignore             # Git ignore rules (__pycache__, *.db, venv/)
-└── README.md              # Project Documentation & Architecture Guide
+│   ├── index.html              # Tier 1: Single-Page Application (HTML, CSS, JS)
+│   ├── config.js               # Tier 1: Set API_BASE to Tier 2 App Server IP here
+│   └── nginx.conf              # Tier 1: Nginx config to serve SPA on Port 80
+├── run.py                      # App Server runner (Tier 2 + Tier 3 init)
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## 🗄️ 5. Database Schema (Tier 2)
+## 🗄️ 5. Database Schema (Tier 3)
 
-### `users` Table
-Stores user credentials and roles.
 ```sql
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,11 +88,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(100) NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'user'
 );
-```
 
-### `restaurants` Table
-Stores restaurant details, menu items, and pricing.
-```sql
 CREATE TABLE IF NOT EXISTS restaurants (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -95,11 +96,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     price DECIMAL(10, 2) NOT NULL,
     rating DECIMAL(3, 1) NOT NULL
 );
-```
 
-### `orders` Table
-Stores customer orders, delivery addresses, and fulfillment states.
-```sql
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_name VARCHAR(100) NOT NULL,
@@ -115,113 +112,142 @@ CREATE TABLE IF NOT EXISTS orders (
 
 ---
 
-## 🔌 6. REST API Endpoints (Tier 1)
+## 🔌 6. REST API Endpoints (Tier 2 — Port 5000)
 
 ### Authentication
-* `POST /api/register` &mdash; Create new Customer or Admin account *(Employee registration is restricted)*.
-* `POST /api/login` &mdash; Authenticate user session.
-* `GET /api/me` &mdash; Retrieve active session user profile and role.
-* `POST /api/logout` &mdash; Clear session.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/login` | Authenticate + set session |
+| `POST` | `/api/register` | Create Customer or Admin account |
+| `GET` | `/api/me` | Return active session user |
+| `POST` | `/api/logout` | Clear session |
 
 ### Menu & Restaurant Management
-* `GET /api/restaurants` &mdash; Fetch all restaurant menu items.
-* `POST /api/admin/restaurants` &mdash; Admin endpoint to add a new dish and restaurant.
-* `PUT /api/restaurants/<id>` &mdash; Admin and Employee endpoint to update price and rating.
-* `DELETE /api/restaurants/<id>` &mdash; Admin endpoint to remove a dish from the menu.
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| `GET` | `/api/restaurants` | Public |
+| `POST` | `/api/admin/restaurants` | Admin only |
+| `PUT` | `/api/restaurants/<id>` | Admin + Employee |
+| `DELETE` | `/api/restaurants/<id>` | Admin only |
 
 ### Orders & Payment
-* `POST /api/order` &mdash; Place order with delivery address, calculate subtotal + ₹30 delivery fee.
-* `GET /api/orders` &mdash; Retrieve orders (Customers see only their own; Employees & Admins see all).
-* `PATCH /api/orders/<id>/status` &mdash; Advance status (`PLACED` &rarr; `PREPARING` &rarr; `DELIVERED`).
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| `POST` | `/api/order` | Logged-in users |
+| `GET` | `/api/orders` | Customer (own) · Admin/Employee (all) |
+| `PATCH` | `/api/orders/<id>/status` | Admin + Employee |
 
 ---
 
-## 🚀 7. AWS Deployment & Setup Guide
+## 🚀 7. AWS Deployment Guide
 
-### Prerequisites
-* 1x **AWS EC2 Instance** (Ubuntu 22.04 or 24.04 LTS, t2.micro / t3.micro free-tier).
-* 1x **AWS RDS MySQL Instance** (MySQL 8.0, db.t3.micro).
+### Prerequisites — 3 AWS Resources
 
-### AWS Security Group Rules:
-* **EC2 Security Group (Inbound):**
-  * `SSH`: Port `22` &rarr; Your IP
-  * `Custom TCP`: Port `8000` &rarr; `0.0.0.0/0` (Anywhere IPv4)
-* **RDS Security Group (Inbound):**
-  * `MySQL/Aurora`: Port `3306` &rarr; EC2 Security Group ID
+| Resource | Type | Details |
+| :--- | :--- | :--- |
+| **Tier 1 EC2** | t2.micro / Ubuntu 22.04 | Web Server — runs Nginx |
+| **Tier 2 EC2** | t2.micro / Ubuntu 22.04 | App Server — runs Flask |
+| **Tier 3 RDS** | db.t3.micro / MySQL 8.0 | Database — AWS RDS |
+
+### AWS Security Group Rules
+
+**Tier 1 EC2 (Web Server) — Inbound:**
+| Port | Protocol | Source |
+|------|----------|--------|
+| `22` | SSH | Your IP |
+| `80` | HTTP | `0.0.0.0/0` (Anywhere) |
+
+**Tier 2 EC2 (App Server) — Inbound:**
+| Port | Protocol | Source |
+|------|----------|--------|
+| `22` | SSH | Your IP |
+| `5000` | Custom TCP | Tier 1 EC2 Security Group (or `0.0.0.0/0` for testing) |
+
+**Tier 3 RDS (Database) — Inbound:**
+| Port | Protocol | Source |
+|------|----------|--------|
+| `3306` | MySQL/Aurora | Tier 2 EC2 Security Group ID |
 
 ---
 
-### Step-by-Step Installation on EC2
+## 🖥️ 8. Setup Instructions
 
-#### 1. Clone the Repository
+### Step A — Tier 2: App Server EC2 Setup
+
+SSH into your **App Server EC2** and run:
+
 ```bash
-git clone https://github.com/bharatsairamkadali02/zomatoapp.git
+# 1. Clone the repository
+git clone -b 3-tier-application https://github.com/bharatsairamkadali02/zomatoapp.git
 cd zomatoapp
-```
 
-#### 2. Install Python Tools & Set Up Virtual Environment
-```bash
-sudo apt update -y
-sudo apt install -y python3-pip python3-venv
-
+# 2. Install Python tools & virtual environment
+sudo apt update -y && sudo apt install -y python3-pip python3-venv
 python3 -m venv venv
 ./venv/bin/pip install -r application/requirements.txt
-```
 
-#### 3. Configure 24/7 Background Service (systemd)
-Create a systemd unit file so the application starts automatically on boot:
-```bash
-sudo tee /etc/systemd/system/zomato.service > /dev/null << 'EOF'
-[Unit]
-Description=Zomato 2-Tier Web Application
-After=network.target
+# 3. Install the systemd service
+#    IMPORTANT: Edit the service file first — replace TIER1_WEB_SERVER_IP
+#               with the actual public IP of your Tier 1 EC2 instance
+nano application/zomato-app.service
 
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/zomatoapp
-ExecStart=/home/ubuntu/zomatoapp/venv/bin/python3 run.py
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-EOF
-```
-
-#### 4. Enable and Start the Application
-```bash
+sudo cp application/zomato-app.service /etc/systemd/system/zomato-app.service
 sudo systemctl daemon-reload
-sudo systemctl enable zomato
-sudo systemctl start zomato
+sudo systemctl enable zomato-app
+sudo systemctl start zomato-app
+
+# 4. Verify service status
+sudo systemctl status zomato-app
 ```
 
-#### 5. Verify Service Status
+---
+
+### Step B — Tier 1: Web Server EC2 Setup
+
+SSH into your **Web Server EC2** and run:
+
 ```bash
-sudo systemctl status zomato
+# 1. Clone the repository (only web files needed)
+git clone -b 3-tier-application https://github.com/bharatsairamkadali02/zomatoapp.git
+cd zomatoapp
+
+# 2. IMPORTANT: Set the Tier 2 App Server IP in config.js
+#    Replace APP_SERVER_IP with your Tier 2 EC2's public IP
+nano web/config.js
+# Change:  const API_BASE = 'http://APP_SERVER_IP:5000';
+# To:      const API_BASE = 'http://13.235.200.100:5000';  ← Your Tier 2 IP
+
+# 3. Install and configure Nginx
+sudo apt update -y && sudo apt install -y nginx
+
+sudo cp web/nginx.conf /etc/nginx/sites-available/zomato
+sudo ln -s /etc/nginx/sites-available/zomato /etc/nginx/sites-enabled/zomato
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# 4. Test and reload Nginx
+sudo nginx -t
+sudo systemctl enable nginx
+sudo systemctl restart nginx
 ```
 
 ---
 
-## 🌐 8. Accessing the Application
+## 🌐 9. Accessing the Application
 
-Open your browser and navigate to:
-```text
-http://<EC2_PUBLIC_IP>:8000/home
-```
-
-### Available Path Routes:
-* `http://<EC2_PUBLIC_IP>:8000/home` &mdash; Restaurant Dishes & Dynamic Card Controls
-* `http://<EC2_PUBLIC_IP>:8000/cart` &mdash; Shopping Cart & Checkout
-* `http://<EC2_PUBLIC_IP>:8000/orders` &mdash; Live Order Management & Kitchen Queue
-* `http://<EC2_PUBLIC_IP>:8000/login` &mdash; Account Sign In
-* `http://<EC2_PUBLIC_IP>:8000/signup` &mdash; Account Registration
+| URL | Route |
+| :--- | :--- |
+| `http://<TIER1_EC2_IP>/home` | Restaurant Menu & Cart |
+| `http://<TIER1_EC2_IP>/cart` | Shopping Cart & Checkout |
+| `http://<TIER1_EC2_IP>/orders` | Live Order Management |
+| `http://<TIER1_EC2_IP>/login` | Account Sign In |
+| `http://<TIER1_EC2_IP>/signup` | Account Registration |
 
 ---
 
-## 🧪 9. Verification & Testing
+## 🧪 10. Verification Checklist
 
-### Verification Checklist:
-1. **Dynamic Quantity Selector:** Click `+ Add to Cart` on any item on `/home`. The card immediately changes to `[ − ] 1 [ + ]` and updates the cart counter in the upper navbar.
-2. **UPI QR Code Payment:** Proceed to checkout in `/cart`, enter delivery address, scan QR Code, and click `✅ I Have Scanned & Paid`. Order is recorded in RDS MySQL.
-3. **Employee Workflow:** Login with `BHARAT` / `Bharat@12345`. User is automatically redirected directly to `/orders` (Kitchen Queue) and can change status from `PLACED` &rarr; `PREPARING` &rarr; `DELIVERED`.
-4. **Signup Role Guard:** Visit `/signup`. Verify only `Customer` and `Admin` roles are available.
+1. **Cross-Origin Session:** Login on Tier 1 UI → session is maintained via Tier 2 Flask across machines.
+2. **Dynamic Cart:** Click `+ Add to Cart` on any dish → card changes to `[−] 1 [+]` in real-time.
+3. **UPI QR Payment:** Proceed to checkout → scan QR → click `✅ I Have Scanned & Paid` → order saved to RDS.
+4. **Employee Workflow:** Login as `BHARAT` → auto-redirected to `/orders` → advance status `PLACED → PREPARING → DELIVERED`.
+5. **Admin Panel:** Login as `admin` → Add/Edit/Delete dishes visible on `/home`.

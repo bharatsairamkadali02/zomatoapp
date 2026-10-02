@@ -1,0 +1,23 @@
+[Unit]
+Description=Zomato Tier 2 — Flask Application Server
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/zomatoapp
+
+# --- Required: Set Tier 1 Web Server IP to allow CORS ---
+Environment="ALLOWED_ORIGIN=http://TIER1_WEB_SERVER_IP"
+
+# --- Recommended: set a strong secret key in production ---
+Environment="SECRET_KEY=change_this_to_a_strong_random_key"
+
+# --- Database: Use RDS MySQL by default, set USE_SQLITE=true for local dev ---
+# Environment="USE_SQLITE=true"
+
+ExecStart=/home/ubuntu/zomatoapp/venv/bin/python3 run.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

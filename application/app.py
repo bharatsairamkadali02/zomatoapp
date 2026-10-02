@@ -1,6 +1,19 @@
+"""
+Tier 2 — Application Server (Flask REST API)
+============================================
+Runs on the App Server EC2 instance (Port 5000).
+Handles all business logic and exposes REST API endpoints.
+Static web files are NOT served here — that is Tier 1's job (Nginx).
+
+Environment Variables:
+    ALLOWED_ORIGIN  : URL of Tier 1 Web Server (e.g. http://13.235.100.100)
+                      Defaults to '*' for local development only.
+                      Set this explicitly in production!
+"""
 import os
 import sys
-from flask import Flask, request, jsonify, send_from_directory, session
+from flask import Flask, request, jsonify, session
+from flask_cors import CORS
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from database.db import (
@@ -17,27 +30,29 @@ from database.db import (
     update_order_status
 )
 
-WEB_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "web"))
-app = Flask(__name__, static_folder=WEB_FOLDER, static_url_path="")
-app.secret_key = "zomato_super_secret_key_123"
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "zomato_super_secret_key_123")
 
-# -------------------------------------------------------------
-# Path-based Web Routes (/home, /login, /signup, /cart, /orders)
-# -------------------------------------------------------------
-@app.route("/")
-@app.route("/home")
-@app.route("/login")
-@app.route("/signup")
-@app.route("/signin")
-@app.route("/cart")
-@app.route("/orders")
-def serve_pages():
-    """Serves the frontend for all path-based routes."""
-    return send_from_directory(WEB_FOLDER, "index.html")
+# ---------------------------------------------------------------------------
+# CORS — Allow Tier 1 Web Server to make cross-origin API calls.
+#         supports_credentials=True is required for Flask sessions to work
+#         across separate machines.
+#
+#  PRODUCTION: Set ALLOWED_ORIGIN env var to your Tier 1 EC2 IP/domain.
+#              e.g. export ALLOWED_ORIGIN=http://13.235.100.100
+# ---------------------------------------------------------------------------
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "*")
+CORS(
+    app,
+    supports_credentials=True,
+    origins=[ALLOWED_ORIGIN] if ALLOWED_ORIGIN != "*" else "*",
+    allow_headers=["Content-Type"],
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+)
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Authentication REST APIs
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
@@ -79,9 +94,9 @@ def logout():
     session.pop("user", None)
     return jsonify({"message": "Logged out successfully"})
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Restaurant & Menu APIs (Admin & Employee)
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 @app.route("/api/restaurants", methods=["GET"])
 def get_restaurants():
     items = get_all_restaurants()
@@ -135,9 +150,9 @@ def delete_item(item_id):
     delete_restaurant_item(item_id)
     return jsonify({"message": "Menu item deleted successfully!"})
 
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Order Management APIs (Customer, Employee, Admin)
-# -------------------------------------------------------------
+# ---------------------------------------------------------------------------
 @app.route("/api/order", methods=["POST"])
 def place_order():
     """Customer places an order."""
@@ -199,4 +214,4 @@ def update_status(order_id):
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
