@@ -1,0 +1,6 @@
+aws_region          = "ap-south-1"
+project_name        = "zomato"
+key_pair_name       = "REPLACE_WITH_EXISTING_EC2_KEY_PAIR_NAME"
+ssh_ingress_cidr    = "REPLACE_WITH_YOUR_PUBLIC_IP/32"
+db_master_username  = "zomato_admin"
+db_master_password  = "REPLACE_WITH_A_NEW_RDS_PASSWORD"

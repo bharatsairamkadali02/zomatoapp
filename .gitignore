@@ -5,3 +5,13 @@ venv/
 *.db
 .env
 app.log
+
+# Terraform local state, plans, and credentials
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+terraform.tfvars.json
+crash.log
+crash.*.log
